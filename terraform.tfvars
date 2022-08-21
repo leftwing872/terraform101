@@ -1,4 +1,6 @@
 
-instance_name = "x1"
+instance_name = "Server1"
 
-key = "961770019511_oregon"
+key = "DevOpsEng"
+
+vpc_id = "vpc-0ed3b2c31bd4ebdd1"
