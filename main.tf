@@ -11,12 +11,12 @@ terraform {
 
 provider "aws" {
   profile = "default"
-  region  = "us-west-2"
+  region  = "ap-northeast-2"
 }
 
 resource "aws_instance" "app_server" {
-  ami           = "ami-830c94e3"
-  instance_type = "t2.micro"
+  ami           = var.ami_id
+  instance_type = "t3.micro"
   key_name = var.key
   vpc_security_group_ids = [aws_security_group.app_server.id]
   tags = {
@@ -30,9 +30,8 @@ resource "aws_instance" "app_server" {
 resource "aws_security_group" "app_server" {
     name        = "sg_app_server"
     description = "Allow TLS inbound traffic"
-    vpc_id      = "vpc-91082de9"
     
-    #vpc_id  = var.vpc_id
+    vpc_id  = var.vpc_id
     
 
     # Egress All
