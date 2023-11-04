@@ -1,46 +1,64 @@
-variable "number_example" {
-	description = "An example of a number variable in Terraform"
-	type = number
-	default = 2
+terraform {
+  required_providers {
+    aws = {
+      source  = "hashicorp/aws"
+      version = "~> 3.27"
+    }
+  }
+
+  required_version = ">= 0.14.9"
 }
 
-variable "list_example" {
-	description = "An example of list in Terraform"
-	type = list
-	default = ["ap-northeast-2a", "ap-northeast-2b", "ap-northeast-2c"]
+provider "aws" {
+  profile = "default"
+  region  = "ap-northeast-2"
 }
 
-#제약조건 결합
-variable "list_numeric_example" {
-	description = "An example of numericlist in Terraform"
-	type = list(number)
-	default = [1, 2, 3]
+resource "aws_instance" "app_server" {
+  count = var.number_example
+  ami           ="ami-0e01e66dacaf1454d"
+  instance_type = "t3.micro"
+  vpc_security_group_ids = [aws_security_group.app_server_sg.id]
+  # tags = {
+  #   Name = "AppServer1"
+  #   Type = "ec2"
+  # }
+  
+  #tags = var.map_example
+  tags = local.tags_merge
 }
 
-variable "map_example" {
-	description = "An example of a map in Terraform"
-	type = map(string)
-	
-	default = {
-		key1 = "value1"
-		key2 = "value2"
-		key3 = "value3"	
-	}
+locals {
+  stage_tags = {
+    Name = "AppServer1"
+    Type = "ec2"
+    key1 = "key1"
+  }
+  tags_merge = merge(var.map_example, local.stage_tags)
 }
 
-variable "object_example" {
-	description = "An example of astructual type in Terraform"
-	type = object({
-		name = string
-		age = number
-		tags = list(string)
-		enabled = bool
-	})
+# Security Group
+resource "aws_security_group" "app_server_sg" {
+    name        = "sg_app_server"
+    description = "Allow TLS inbound traffic"
     
-	default = {
-		name = "value1"
-		age = 42
-		tags = ["a", "b", "c"]
-		enabled = true
-	}
+    # Egress All
+    egress {
+        from_port = "0"
+        to_port = "0"
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    
+}
+
+# Security Group Rule
+resource "aws_security_group_rule" "app_server_sg_ingress1" {
+    type = "ingress"
+    from_port = "22"
+    to_port = "22"
+    protocol = "tcp"
+    cidr_blocks = ["10.80.84.96/27", "1.2.3.0/24"]
+    security_group_id = aws_security_group.app_server_sg.id
+    description = "Ingress app_server ssh"
 }
