@@ -7,7 +7,7 @@ variable "number_example" {
 variable "list_example" {
 	description = "An example of list in Terraform"
 	type = list
-	default = ["ap-northeast-2a", "ap-northeast-2b", "ap-northeast-2c"]
+	default = ["a", "b", "c"]
 }
 
 #제약조건 결합
